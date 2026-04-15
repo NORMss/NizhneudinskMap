@@ -1,8 +1,8 @@
 const NEW_CATEGORY_VALUE = "__new__";
 const NIZHNEUDINSK_CENTER = [54.9024925, 99.0289558];
 const NIZHNEUDINSK_BOUNDS = [
-  [54.8551994, 98.9290848],
-  [54.968033, 99.1122392],
+  [55.38981, 99.794],
+  [54.4114, 98.328942],
 ];
 
 const map = L.map("map", {
