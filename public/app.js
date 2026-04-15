@@ -8,7 +8,7 @@ const NIZHNEUDINSK_BOUNDS = [
 const map = L.map("map", {
   maxBounds: NIZHNEUDINSK_BOUNDS,
   maxBoundsViscosity: 0.96,
-  minZoom: 11,
+  minZoom: 6,
   zoomControl: true,
 });
 
