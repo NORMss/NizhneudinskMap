@@ -19,10 +19,10 @@ const ADD_PLACE_PASSWORD = process.env.ADD_PLACE_PASSWORD || "nizhneudinsk";
 const NEW_CATEGORY_VALUE = "__new__";
 
 const NIZHNEUDINSK_BOUNDS = {
-  latMin: 54.8551994,
-  latMax: 54.968033,
-  lonMin: 98.9290848,
-  lonMax: 99.1122392,
+  latMin: 54.4114,
+  latMax: 55.38981,
+  lonMin: 98.328942,
+  lonMax: 99.794,
 };
 
 const DEFAULT_CATEGORY = {
