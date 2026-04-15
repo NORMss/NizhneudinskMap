@@ -86,6 +86,16 @@ app.get("/api/categories", async (_req, res, next) => {
   }
 });
 
+app.post("/api/auth/login", (req, res) => {
+  const password = normalizeText(req.body && req.body.password);
+  if (!isPasswordValid(password)) {
+    res.status(401).json({ error: "Неверный пароль" });
+    return;
+  }
+
+  res.json({ ok: true });
+});
+
 app.get("/api/places/:id", async (req, res, next) => {
   try {
     const [places, categories] = await Promise.all([readPlacesGeoJson(), readCategories()]);

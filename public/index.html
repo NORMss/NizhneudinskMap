@@ -21,17 +21,14 @@
   <body>
     <header class="app-header">
       <h1 class="title">Карта мест Нижнеудинска</h1>
-      <p class="subtitle">
-        Сначала карта и список мест. Добавление новой точки открывается в диалоге после клика по
-        карте.
-      </p>
+      <p class="subtitle">Сайт сделан в рамках учебного проекта по Географии Пестрецовой Дианой, 10 класс</p>
     </header>
 
     <main class="page">
       <section class="panel map-panel" aria-label="Карта">
         <div class="map-toolbar">
-          <button id="openAddDialogBtn" class="primary-btn" type="button">Добавить место</button>
-          <p class="map-help">Нажмите на карту, чтобы выбрать координаты и открыть форму.</p>
+          <button id="editModeButton" class="primary-btn" type="button">Войти в режим редактирования</button>
+          <p class="map-help">После входа в режим редактирования кликайте по карте для добавления места.</p>
         </div>
         <div id="map"></div>
       </section>
@@ -60,15 +57,9 @@
         </div>
 
         <p class="help">
-          Для добавления точки нужен пароль. Координаты подставляются автоматически после клика по
-          карте.
+          Координаты подставляются автоматически после клика по карте.
         </p>
         <p class="status" id="formStatus"></p>
-
-        <div class="field">
-          <label for="password">Пароль для добавления*</label>
-          <input type="password" id="password" name="password" required autocomplete="off" />
-        </div>
 
         <div class="field">
           <label for="name">Название*</label>
@@ -154,6 +145,30 @@
         <menu class="actions">
           <button type="button" class="secondary-btn" id="cancelDialogButton">Отмена</button>
           <button type="submit" class="primary-btn">Сохранить точку</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <dialog id="authDialog" class="add-dialog auth-dialog">
+      <form class="place-form" id="authForm">
+        <div class="dialog-head">
+          <h2 class="section-title">Вход в режим редактирования</h2>
+          <button class="icon-btn" id="closeAuthDialogButton" type="button" aria-label="Закрыть">
+            &times;
+          </button>
+        </div>
+
+        <p class="help">Введите пароль один раз, чтобы затем добавлять точки кликом по карте.</p>
+        <p class="status" id="authStatus"></p>
+
+        <div class="field">
+          <label for="authPassword">Пароль*</label>
+          <input type="password" id="authPassword" name="authPassword" required autocomplete="off" />
+        </div>
+
+        <menu class="actions">
+          <button type="button" class="secondary-btn" id="cancelAuthDialogButton">Отмена</button>
+          <button type="submit" class="primary-btn">Войти</button>
         </menu>
       </form>
     </dialog>

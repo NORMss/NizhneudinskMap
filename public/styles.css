@@ -94,6 +94,14 @@ a:hover {
   font-size: 0.88rem;
 }
 
+.edit-mode-on {
+  background: #1c7f3c;
+}
+
+.edit-mode-off {
+  background: var(--accent);
+}
+
 #map {
   width: 100%;
   flex: 1;
@@ -225,6 +233,10 @@ a:hover {
 .add-dialog .place-form {
   margin: 0;
   padding: 16px;
+}
+
+.auth-dialog {
+  width: min(500px, calc(100% - 28px));
 }
 
 .new-category-fields {
@@ -423,13 +435,6 @@ button:disabled {
   margin: 0;
 }
 
-.hover-address {
-  margin: 4px 0 0;
-  color: var(--muted);
-  font-size: 0.8rem;
-  line-height: 1.3;
-}
-
 .hover-category {
   margin-top: 7px;
   display: inline-flex;
@@ -482,6 +487,10 @@ button:disabled {
   border-radius: 50%;
   border: 2px solid #fff;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+}
+
+.leaflet-bottom {
+  transform: translateY(1cm);
 }
 
 .place-card-wrapper {

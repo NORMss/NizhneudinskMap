@@ -12,10 +12,9 @@ const map = L.map("map", {
   zoomControl: true,
 });
 
-L.tileLayer("https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png", {
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
   maxZoom: 19,
-  attribution:
-    '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
 }).addTo(map);
 
 map.fitBounds(NIZHNEUDINSK_BOUNDS, { padding: [16, 16] });
@@ -37,30 +36,45 @@ const placesCount = document.getElementById("placesCount");
 const categoriesLegend = document.getElementById("categoriesLegend");
 
 const addDialog = document.getElementById("addDialog");
-const openAddDialogBtn = document.getElementById("openAddDialogBtn");
 const cancelDialogButton = document.getElementById("cancelDialogButton");
 const closeDialogButton = document.getElementById("closeDialogButton");
+
+const editModeButton = document.getElementById("editModeButton");
+const authDialog = document.getElementById("authDialog");
+const authForm = document.getElementById("authForm");
+const authPasswordInput = document.getElementById("authPassword");
+const authStatusEl = document.getElementById("authStatus");
+const cancelAuthDialogButton = document.getElementById("cancelAuthDialogButton");
+const closeAuthDialogButton = document.getElementById("closeAuthDialogButton");
 
 let selectionMarker = null;
 let placesLayer = L.layerGroup().addTo(map);
 let placesCache = [];
 let categoriesCache = [];
+let editModeEnabled = false;
+let editModePassword = "";
 
 map.on("click", onMapClick);
 
 form.addEventListener("submit", onSubmit);
 categoryIdInput.addEventListener("change", onCategorySelectionChange);
-
-openAddDialogBtn.addEventListener("click", () => {
-  openDialogWithLastCoordinates();
-});
+editModeButton.addEventListener("click", onEditModeButtonClick);
+authForm.addEventListener("submit", onAuthSubmit);
 
 cancelDialogButton.addEventListener("click", closeDialog);
 closeDialogButton.addEventListener("click", closeDialog);
 
+cancelAuthDialogButton.addEventListener("click", closeAuthDialog);
+closeAuthDialogButton.addEventListener("click", closeAuthDialog);
+
 addDialog.addEventListener("cancel", (event) => {
   event.preventDefault();
   closeDialog();
+});
+
+authDialog.addEventListener("cancel", (event) => {
+  event.preventDefault();
+  closeAuthDialog();
 });
 
 photoFileInput.addEventListener("change", () => {
@@ -76,6 +90,8 @@ init().catch((error) => {
 
 async function init() {
   await Promise.all([loadCategories(), loadPlaces()]);
+  updateEditModeUi();
+
   if (placesCache.length === 0) {
     map.setView(NIZHNEUDINSK_CENTER, 13);
   }
@@ -150,17 +166,83 @@ function renderCategoriesLegend() {
 function onMapClick(event) {
   const { lat, lng } = event.latlng;
   setSelectedCoordinates(lat, lng);
+
+  if (!editModeEnabled) {
+    setPageStatus("Сначала включите режим редактирования, затем кликайте по карте.", "empty");
+    return;
+  }
+
   openAddDialog();
   setStatus("Координаты выбраны. Заполните данные и сохраните.", "ok");
 }
 
-function openDialogWithLastCoordinates() {
-  if (!latInput.value || !lonInput.value) {
-    const center = map.getCenter();
-    setSelectedCoordinates(center.lat, center.lng);
+function onEditModeButtonClick() {
+  if (editModeEnabled) {
+    disableEditMode();
+    setPageStatus("Режим редактирования выключен", "empty");
+    return;
   }
 
-  openAddDialog();
+  setAuthStatus("", "");
+  authForm.reset();
+  openAuthDialog();
+}
+
+async function onAuthSubmit(event) {
+  event.preventDefault();
+
+  const password = authPasswordInput.value.trim();
+  if (!password) {
+    setAuthStatus("Введите пароль", "error");
+    return;
+  }
+
+  setAuthStatus("Проверяем пароль...", "");
+
+  try {
+    const response = await fetch("/api/auth/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ password }),
+    });
+
+    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(data.error || "Не удалось войти в режим редактирования");
+    }
+
+    editModeEnabled = true;
+    editModePassword = password;
+    updateEditModeUi();
+
+    closeAuthDialog();
+    authForm.reset();
+    setPageStatus("Режим редактирования включен. Кликните по карте для добавления места.", "ok");
+  } catch (error) {
+    setAuthStatus(error.message || "Ошибка авторизации", "error");
+  }
+}
+
+function disableEditMode() {
+  editModeEnabled = false;
+  editModePassword = "";
+  updateEditModeUi();
+  closeDialog();
+}
+
+function updateEditModeUi() {
+  if (editModeEnabled) {
+    editModeButton.textContent = "Режим редактирования: ВКЛ (нажмите, чтобы выйти)";
+    editModeButton.classList.add("edit-mode-on");
+    editModeButton.classList.remove("edit-mode-off");
+    map.getContainer().style.cursor = "crosshair";
+    return;
+  }
+
+  editModeButton.textContent = "Войти в режим редактирования";
+  editModeButton.classList.remove("edit-mode-on");
+  editModeButton.classList.add("edit-mode-off");
+  map.getContainer().style.cursor = "";
 }
 
 function openAddDialog() {
@@ -182,6 +264,28 @@ function closeDialog() {
     addDialog.close();
   } else {
     addDialog.removeAttribute("open");
+  }
+}
+
+function openAuthDialog() {
+  if (typeof authDialog.showModal === "function") {
+    if (!authDialog.open) {
+      authDialog.showModal();
+    }
+  } else {
+    authDialog.setAttribute("open", "true");
+  }
+}
+
+function closeAuthDialog() {
+  if (!authDialog.open) {
+    return;
+  }
+
+  if (typeof authDialog.close === "function") {
+    authDialog.close();
+  } else {
+    authDialog.removeAttribute("open");
   }
 }
 
@@ -261,12 +365,10 @@ function createPopupHtml(place) {
 function createHoverCardHtml(place) {
   const categoryName = place.properties.categoryName || "Без категории";
   const categoryColor = normalizeColorOrFallback(place.properties.categoryColor, "#c4572e");
-  const address = place.properties.address || "Адрес уточняется";
 
   return `
     <div class="hover-card">
       <p class="hover-title">${escapeHtml(place.properties.name)}</p>
-      <p class="hover-address">${escapeHtml(address)}</p>
       <span class="hover-category">
         <span class="hover-dot" style="background:${escapeHtmlAttribute(categoryColor)}"></span>
         ${escapeHtml(categoryName)}
@@ -284,7 +386,10 @@ function renderList() {
     return;
   }
 
-  setPageStatus("", "");
+  if (!pageStatusEl.textContent) {
+    setPageStatus("", "");
+  }
+
   const sorted = [...placesCache].sort((a, b) => {
     const aDate = new Date(a.properties.createdAt).getTime();
     const bDate = new Date(b.properties.createdAt).getTime();
@@ -337,9 +442,15 @@ function renderList() {
 async function onSubmit(event) {
   event.preventDefault();
 
+  if (!editModeEnabled || !editModePassword) {
+    setStatus("Сначала войдите в режим редактирования", "error");
+    return;
+  }
+
   setStatus("Сохраняем точку...", "");
 
   const payload = new FormData(form);
+  payload.set("password", editModePassword);
 
   try {
     const response = await fetch("/api/places", {
@@ -350,6 +461,10 @@ async function onSubmit(event) {
     const data = await response.json();
 
     if (!response.ok) {
+      if (response.status === 401) {
+        disableEditMode();
+        throw new Error("Пароль режима редактирования стал недействительным. Войдите снова.");
+      }
       throw new Error(data.error || "Не удалось сохранить точку");
     }
 
@@ -419,6 +534,15 @@ function setStatus(message, type) {
 
   if (type) {
     statusEl.classList.add(type);
+  }
+}
+
+function setAuthStatus(message, type) {
+  authStatusEl.textContent = message;
+  authStatusEl.classList.remove("error", "ok", "empty");
+
+  if (type) {
+    authStatusEl.classList.add(type);
   }
 }
 
