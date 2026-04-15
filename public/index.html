@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Карта мест Нижнеудинска</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <h1 class="title">Карта мест Нижнеудинска</h1>
+      <p class="subtitle">
+        Сначала карта и список мест. Добавление новой точки открывается в диалоге после клика по
+        карте.
+      </p>
+    </header>
+
+    <main class="page">
+      <section class="panel map-panel" aria-label="Карта">
+        <div class="map-toolbar">
+          <button id="openAddDialogBtn" class="primary-btn" type="button">Добавить место</button>
+          <p class="map-help">Нажмите на карту, чтобы выбрать координаты и открыть форму.</p>
+        </div>
+        <div id="map"></div>
+      </section>
+
+      <section class="panel list-panel" aria-label="Список мест">
+        <div class="panel-inner">
+          <div class="list-header">
+            <h2 class="section-title">Список мест</h2>
+            <span class="count-badge" id="placesCount">0</span>
+          </div>
+
+          <div class="categories-legend" id="categoriesLegend"></div>
+          <p class="status" id="pageStatus"></p>
+          <div class="places-list" id="placesList" aria-live="polite"></div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="addDialog" class="add-dialog">
+      <form class="place-form" id="placeForm" enctype="multipart/form-data">
+        <div class="dialog-head">
+          <h2 class="section-title">Новое место</h2>
+          <button class="icon-btn" id="closeDialogButton" type="button" aria-label="Закрыть">
+            &times;
+          </button>
+        </div>
+
+        <p class="help">
+          Для добавления точки нужен пароль. Координаты подставляются автоматически после клика по
+          карте.
+        </p>
+        <p class="status" id="formStatus"></p>
+
+        <div class="field">
+          <label for="password">Пароль для добавления*</label>
+          <input type="password" id="password" name="password" required autocomplete="off" />
+        </div>
+
+        <div class="field">
+          <label for="name">Название*</label>
+          <input type="text" id="name" name="name" required maxlength="140" />
+        </div>
+
+        <div class="field">
+          <label for="description">Описание</label>
+          <textarea id="description" name="description" maxlength="5000"></textarea>
+        </div>
+
+        <div class="field inline">
+          <div>
+            <label for="lat">Широта*</label>
+            <input
+              type="number"
+              id="lat"
+              name="lat"
+              step="0.000001"
+              min="54.855199"
+              max="54.968033"
+              required
+            />
+          </div>
+          <div>
+            <label for="lon">Долгота*</label>
+            <input
+              type="number"
+              id="lon"
+              name="lon"
+              step="0.000001"
+              min="98.929085"
+              max="99.112239"
+              required
+            />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="categoryId">Категория*</label>
+          <select id="categoryId" name="categoryId" required></select>
+        </div>
+
+        <div id="newCategoryFields" class="new-category-fields" hidden>
+          <div class="field">
+            <label for="categoryName">Новая категория*</label>
+            <input
+              type="text"
+              id="categoryName"
+              name="categoryName"
+              maxlength="80"
+              placeholder="Например: Парк"
+            />
+          </div>
+
+          <div class="field">
+            <label for="categoryColor">Цвет категории*</label>
+            <input type="color" id="categoryColor" name="categoryColor" value="#c4572e" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="siteUrl">Сайт места</label>
+          <input type="url" id="siteUrl" name="siteUrl" placeholder="https://..." />
+        </div>
+
+        <div class="field">
+          <label for="photoUrl">Ссылка на фото</label>
+          <input type="url" id="photoUrl" name="photoUrl" placeholder="https://..." />
+          <p class="hint">Если выбран файл, ссылка на фото игнорируется.</p>
+        </div>
+
+        <div class="field">
+          <label for="photoFile">Фото с компьютера (до 1 МБ)</label>
+          <input
+            type="file"
+            id="photoFile"
+            name="photoFile"
+            accept="image/png,image/jpeg,image/webp,image/gif,image/avif"
+          />
+        </div>
+
+        <menu class="actions">
+          <button type="button" class="secondary-btn" id="cancelDialogButton">Отмена</button>
+          <button type="submit" class="primary-btn">Сохранить точку</button>
+        </menu>
+      </form>
+    </dialog>
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+    <script src="/app.js"></script>
+  </body>
+</html>

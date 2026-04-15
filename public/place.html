@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Карточка места - Нижнеудинск</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=PT+Sans:wght@400;700&family=PT+Serif:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="place-card-wrapper">
+      <article class="place-card" id="placeCard">
+        <div class="place-card-content">
+          <p class="loading" id="loadingState">Загрузка карточки...</p>
+          <p class="status error" id="errorState" hidden></p>
+          <section id="placeContent" hidden>
+            <h1 class="place-card-title" id="placeName"></h1>
+            <p class="place-card-address" id="placeAddress"></p>
+            <p class="place-card-description" id="placeDescription"></p>
+
+            <div class="place-card-grid">
+              <div id="imageHost"></div>
+
+              <aside class="meta-box">
+                <h2>Информация</h2>
+                <div class="meta-row">
+                  <span class="meta-label">Координаты</span>
+                  <span class="meta-value" id="placeCoordinates"></span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Категория</span>
+                  <span class="meta-value" id="placeCategory"></span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Сайт места</span>
+                  <span class="meta-value" id="placeSite"></span>
+                </div>
+                <div class="meta-row">
+                  <span class="meta-label">Дата добавления</span>
+                  <span class="meta-value" id="placeDate"></span>
+                </div>
+              </aside>
+            </div>
+
+            <a class="back-link" href="/">← Назад к карте</a>
+          </section>
+        </div>
+      </article>
+    </div>
+
+    <script src="/place.js"></script>
+  </body>
+</html>
